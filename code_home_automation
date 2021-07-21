@@ -1,0 +1,171 @@
+#include <IRremote.h>
+#include<LiquidCrystal.h>
+
+LiquidCrystal lcd(7,8,9,10,11,12);
+const int RECV_PIN=A0;
+IRrecv irrecv(RECV_PIN);
+decode_results results;
+#define IN1 3
+#define IN2 4
+#define IN3 5
+#define IN4 6
+int inputpin = 2;               // choose the input pin (for PIR sensor)
+int pirState = LOW; 
+
+bool m=true;
+
+int q = 0;
+int w = 0;
+int e = 0;
+int r = 0;
+
+int k =0;
+
+void setup()
+{
+ lcd.begin(16, 2);
+
+  Serial.begin(9600);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(inputpin, INPUT);
+  irrecv.enableIRIn();
+  irrecv.blink13(true);
+ 
+}
+void loop() 
+{
+  
+  k =digitalRead(inputpin);
+    
+    
+    if(k == HIGH)
+    {
+      digitalWrite(IN1, HIGH);
+      q++;
+      digitalWrite(IN2, HIGH);
+      w++;
+      lcd.clear();
+        Serial.print("HUMAN:FAN AND BULB ON");
+         lcd.print("MAN:FAN,BULB ON");
+    }
+  
+  
+  
+  if (irrecv.decode(&results)) 
+   {
+     Serial.println(results.value,HEX);
+     delay(100);
+     /////////////////////////
+    
+    
+    
+    
+     if(results.value==0xFD08F7)
+     {
+       
+       
+       if(q==0){
+        digitalWrite(IN1, HIGH);
+        lcd.clear();
+        Serial.print("Fan is turned on");
+         lcd.print("Fan is  on");
+         q++;
+       
+       }
+       
+       else
+       {
+         digitalWrite(IN1, LOW);
+        lcd.clear();
+        Serial.print("Fan is turned OFF");
+         lcd.print("Fan is OFF");
+         q=0;
+       }
+        
+     }
+     ////////////////////////
+    
+    
+    
+     if(results.value==0xFD8877)
+     {
+        //j=!j;
+       if(w==0){
+        digitalWrite(IN2, HIGH);
+        lcd.clear();
+        Serial.print("Bulb is  on");
+        lcd.print("Bulb is  on");
+       // delay(200);
+         w++;
+       }
+       else
+       {
+         digitalWrite(IN2, LOW);
+        lcd.clear();
+        Serial.print("Bulb is OFF");
+        lcd.print("Bulb is OFF");
+         w=0;
+       }
+     }
+     if(results.value==0xFD48B7)
+     {
+       if(e == 0){
+        digitalWrite(IN3, HIGH);
+        lcd.clear();
+        Serial.print("AC is on");
+        lcd.print("AC is on");
+       // delay(200);
+         e++;
+       }
+       else
+       {
+         digitalWrite(IN3, LOW);
+        lcd.clear();
+        Serial.print("AC is OFF");
+        lcd.print("AC is OFF");
+         e=0;
+       }
+     }  
+     //////////////////////////////
+    
+    
+     if(results.value==0xFD28D7)
+     {
+       
+       if(r == 0){ 
+        digitalWrite(IN4, HIGH);
+        lcd.clear();
+        Serial.print("TV is on");
+        lcd.print("TV is on");
+         r++;
+       }
+       else
+       {
+         digitalWrite(IN4, LOW);
+        lcd.clear();
+        Serial.print("TV is OFF");
+        lcd.print("TV is OFF");
+       }
+       
+     }
+     //////////////////////
+    
+    
+     if(results.value==0xFD00FF)
+     {
+        m=!m;
+        digitalWrite(IN1, m);
+        digitalWrite(IN2, m);
+        digitalWrite(IN3, m);
+        digitalWrite(IN4, m);
+        lcd.clear();
+         lcd.print("ALL appliance off ");
+       // delay(200);
+     }
+     irrecv.resume(); // Receive the next value
+     //delay(100);
+   }
+}
